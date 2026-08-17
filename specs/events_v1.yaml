@@ -1,0 +1,30 @@
+asyncapi: 3.0.0
+info:
+  title: Authentication & Audit Events API
+  version: 1.0.0
+  description: Asynchronous event messaging for cross-service notifications and audit logging.
+channels:
+  auditEvents:
+    address: audit.events
+    messages:
+      accessDecisionLogged:
+        $ref: '#/components/messages/AccessDecisionLogged'
+components:
+  messages:
+    AccessDecisionLogged:
+      name: AccessDecisionLogged
+      title: Access Decision Logged Event
+      payload:
+        type: object
+        required: [user_id, action, resource, decision, timestamp]
+        properties:
+          user_id:
+            type: string
+          action:
+            type: string
+          resource:
+            type: string
+          decision:
+            type: string
+          timestamp:
+            type: string

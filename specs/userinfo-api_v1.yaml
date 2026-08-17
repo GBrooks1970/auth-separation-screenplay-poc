@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: User Profile API
+  version: 1.0.0
+  description: Manages user profile details and settings linked by user_id.
+servers:
+  - url: http://localhost:3003
+    description: Local development server
+paths:
+  /profiles/{user_id}:
+    get:
+      summary: Retrieve user profile
+      operationId: getProfile
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user_id, name, email]
+                properties:
+                  user_id:
+                    type: string
+                  name:
+                    type: string
+                  email:
+                    type: string
+        '404':
+          description: Profile not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

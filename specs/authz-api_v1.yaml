@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: Authorization API (AuthZ)
+  version: 1.0.0
+  description: Evaluates roles, policies, and permissions to return access decisions.
+servers:
+  - url: http://localhost:3002
+    description: Local development server
+paths:
+  /authz/check-permission:
+    post:
+      summary: Evaluate access permission
+      operationId: checkPermission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, role, action, resource]
+              properties:
+                user_id:
+                  type: string
+                role:
+                  type: string
+                action:
+                  type: string
+                resource:
+                  type: string
+      responses:
+        '200':
+          description: Access decision evaluated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [decision]
+                properties:
+                  decision:
+                    type: string
+                    enum: [PERMITTED, DENIED]
+        '403':
+          description: Access denied
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
