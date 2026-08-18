@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-18
+
+### Added
+- **Phase 1: Node.js Baseline SUT & Screenplay Test Suite (`POC-P1-01` & `POC-P1-02`)**:
+  - Implemented Node.js reference SUT services with Swagger UI (`/docs`):
+    - `src/sut/authn/AuthNService.ts`: Authentication service on port 3001 supporting login, RSA JWT generation, JWKS key discovery (`/.well-known/jwks.json`), token verification, session refresh, and logout revocation.
+    - `src/sut/authz/AuthZService.ts`: Policy evaluation service on port 3002 implementing RBAC (`SecurityAdmin`, `StandardUser`, `Auditor`, `Guest`) and ABAC resource-ownership policies.
+    - `src/sut/userinfo/UserProfileService.ts`: User profile service on port 3003 supporting full profile CRUD (`GET`, `PUT`, `PATCH`, `DELETE`) with email validation and bearer authorization checks.
+    - `src/sut/eventbus/EventBus.ts`: In-memory asynchronous event broker dispatching domain events and centralized audit trail records (`audit.events`).
+    - `src/sut/server.ts`: SUT cluster orchestrator providing unified boot/shutdown lifecycle methods.
+  - Implemented Promise-native Screenplay test automation harness using `hand-baked-screenplay-pattern`:
+    - Abilities: `CallAnApi` (HTTP execution and response caching), `ReceiveEvents` (asynchronous event ledger inspection), `HoldTokens` (actor authentication and role context).
+    - Tasks: `AuthenticateWith`, `VerifyToken`, `TerminateSession`, `RefreshToken`, `CheckPermission`, `RetrieveProfile`, `ReplaceProfile`, `PatchProfile`, `DeleteProfile`, `DiscoverKeys`.
+    - Questions: `TheLastResponse`, `TheAccessDecision`, `TheEmittedEvents`, `TheProfileDetails`.
+    - Step Definitions: Complete Cucumber steps in `src/steps/` executing all 30 canonical Gherkin scenarios with 100% green pass rate.
+  - Updated unified verification gate `scripts/verify.mjs` to execute OpenAPI, AsyncAPI, Gherkin AST linting, and the live Cucumber Screenplay test suite.
+
 ## [0.1.0] - 2026-08-18
 
 ### Added
