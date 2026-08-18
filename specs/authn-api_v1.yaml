@@ -1,65 +1,378 @@
 openapi: 3.1.0
 info:
-  title: Authentication API (AuthN)
+  title: Authentication Service API (AuthN)
   version: 1.0.0
-  description: Establishes user identity, handles sign-in/sign-out, and issues JWT tokens.
+  description: |
+    The Authentication (AuthN) service establishes user identity, handles credential
+    validation, manages session lifecycles, and issues signed JWT identity tokens.
+    It does not evaluate application authorisation policies or store user profile details.
+  contact:
+    name: Platform Engineering Team
+  license:
+    name: MIT
+    identifier: MIT
 servers:
   - url: http://localhost:3001
-    description: Local development server
+    description: Local development server (Node.js reference SUT)
 paths:
-  /auth/login:
-    post:
-      summary: Authenticate user credentials
-      operationId: loginUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [username, password]
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
+  /.well-known/jwks.json:
+    get:
+      tags:
+        - keys
+      summary: Retrieve JSON Web Key Set
+      description: Returns the public keys used to verify cryptographic signatures of issued JWT access tokens.
+      operationId: getJwks
+      security: []
       responses:
         '200':
-          description: Successful authentication
+          description: Current set of public verification keys
           content:
             application/json:
               schema:
-                type: object
-                required: [token, user_id]
-                properties:
-                  token:
-                    type: string
-                  user_id:
-                    type: string
-        '401':
-          description: Invalid credentials
-  /auth/verify:
+                $ref: '#/components/schemas/Jwks'
+        '404':
+          description: Key set not found or not yet initialised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
     post:
-      summary: Verify JWT token identity
-      operationId: verifyToken
+      tags:
+        - session
+      summary: Authenticate user credentials
+      description: Validates username/password credentials and issues a signed JWT access token and refresh token.
+      operationId: loginUser
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [token]
-              properties:
-                token:
-                  type: string
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Token verified successfully
+          description: Successful authentication; access and refresh tokens issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Malformed request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
         '401':
-          description: Invalid or expired token
+          description: Invalid or unrecognised credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '423':
+          description: Account locked due to excessive failed attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/verify:
+    post:
+      tags:
+        - session
+      summary: Verify JWT token identity
+      description: Verifies signature validity, expiration, and revocation status of an issued JWT token.
+      operationId: verifyToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyTokenRequest'
+      responses:
+        '200':
+          description: Token is valid and active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyTokenResponse'
+        '401':
+          description: Token is invalid, expired, or revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - session
+      summary: Refresh JWT access token
+      description: Exchanges an active refresh token for a newly signed access token.
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: Invalid, expired, or revoked refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - session
+      summary: Terminate session and revoke tokens
+      description: Invalidates active session and revokes the provided access/refresh tokens.
+      operationId: logoutUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: Session terminated and tokens revoked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          description: Unauthorised or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: JWT access token obtained from the `/auth/login` endpoint.
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          format: email
+          description: User identifier or email address
+          example: alice@example.com
+        password:
+          type: string
+          format: password
+          description: Plaintext user password
+          example: Password123!
+
+    LoginResponse:
+      type: object
+      required:
+        - token
+        - refresh_token
+        - token_type
+        - expires_in
+        - user_id
+      properties:
+        token:
+          type: string
+          description: Cryptographically signed JWT access token
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          description: Opaque refresh token string
+          example: rfr_8f49b1c20e4b8a91
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Token lifespan in seconds
+          example: 3600
+        user_id:
+          type: string
+          description: Stable unique user identifier
+          example: usr_alice_123
+
+    VerifyTokenRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: JWT access token to verify
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    VerifyTokenResponse:
+      type: object
+      required:
+        - valid
+        - user_id
+        - expires_at
+      properties:
+        valid:
+          type: boolean
+          example: true
+        user_id:
+          type: string
+          example: usr_alice_123
+        username:
+          type: string
+          example: alice@example.com
+        expires_at:
+          type: string
+          format: date-time
+          example: '2026-08-18T12:00:00Z'
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          example: rfr_8f49b1c20e4b8a91
+
+    RefreshTokenResponse:
+      type: object
+      required:
+        - token
+        - refresh_token
+        - token_type
+        - expires_in
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          example: rfr_9e58a2d31f5c9b02
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+
+    LogoutRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          example: rfr_8f49b1c20e4b8a91
+
+    LogoutResponse:
+      type: object
+      required:
+        - message
+        - revoked
+      properties:
+        message:
+          type: string
+          example: Session successfully terminated
+        revoked:
+          type: boolean
+          example: true
+
+    Jwks:
+      type: object
+      required:
+        - keys
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            required:
+              - kty
+              - use
+              - alg
+              - kid
+              - n
+              - e
+            properties:
+              kty:
+                type: string
+                example: RSA
+              use:
+                type: string
+                example: sig
+              alg:
+                type: string
+                example: RS256
+              kid:
+                type: string
+                example: auth-key-2026-01
+              n:
+                type: string
+                description: RSA public modulus
+              e:
+                type: string
+                description: RSA public exponent
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                example: username
+              message:
+                type: string
+                example: Must be a valid email address
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: INVALID_CREDENTIALS
+        message:
+          type: string
+          example: The provided username or password is incorrect

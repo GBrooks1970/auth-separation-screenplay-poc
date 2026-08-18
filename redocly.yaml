@@ -1,0 +1,14 @@
+# Redocly configuration for OpenAPI 3.1 contract validation
+extends:
+  - recommended
+
+rules:
+  no-server-example.com: off
+
+apis:
+  authn:
+    root: specs/authn-api_v1.yaml
+  authz:
+    root: specs/authz-api_v1.yaml
+  userinfo:
+    root: specs/userinfo-api_v1.yaml

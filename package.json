@@ -4,8 +4,11 @@
   "description": "Pedagogical multi-stack demonstration of SDD with BDD using the Screenplay design pattern across separated AuthN, AuthZ, and User Profile APIs.",
   "type": "module",
   "scripts": {
+    "lint:openapi": "redocly lint",
+    "lint:asyncapi": "node scripts/validate-asyncapi.mjs",
+    "lint:gherkin": "node scripts/validate-gherkin.mjs",
     "verify": "node scripts/verify.mjs",
-    "test": "node scripts/verify.mjs",
+    "test": "npm run verify",
     "build": "tsc --noEmit"
   },
   "keywords": [
