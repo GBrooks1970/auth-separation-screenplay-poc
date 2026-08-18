@@ -1,6 +1,6 @@
 # auth-separation-screenplay-poc — Backlog
 
-**Version:** 3 — **Phase 1 Node.js Baseline SUT & Screenplay Test Suite Delivered** (2026-08-18). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
+**Version:** 4 — **Phase 2 Polyglot SUT Expansion Delivered** (2026-08-18). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
 **Last Updated:** 2026-08-18  
 **Based on:** Design Specification Draft ([`../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md`](../../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md))
 
@@ -57,18 +57,18 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 ---
 
-## Outstanding Items
-
-### Phase 2 — Polyglot SUT Expansion & Secondary Test Runners
+## Phase 2 — Polyglot SUT Expansion & Secondary Test Runners (Completed)
 
 #### POC-P2-01: Implement Secondary Polyglot SUT Services (Python / C#) — Score: 14
 **Priority Score:** Security Impact (3) + Breakage Probability (5) + Maintenance Burden (6) = **14 (MEDIUM)**  
-**Status:** Open  
-**Objective:** Implement alternate service targets (Python FastAPI AuthZ, C# ASP.NET Core Profile) to verify contract interchangeability against the exact same BDD features.  
+**Status:** Closed (Delivered 2026-08-18)  
+**Objective:** Implement alternate service targets in Python (FastAPI AuthZ) and C# (.NET 9 ASP.NET Core User Profile) to demonstrate contract interchangeability against the exact same BDD features.  
 **Success Criteria:**
-- [ ] Implement Python FastAPI AuthZ service conforming to `specs/authz-api_v1.yaml`.
-- [ ] Implement C# ASP.NET Core Profile service conforming to `specs/userinfo-api_v1.yaml`.
-- [ ] Run the exact same Screenplay BDD suite against the polyglot stack without modification.
+- [x] Python FastAPI AuthZ service implemented under `sut-polyglot/python-authz/` conforming to `specs/authz-api_v1.yaml`.
+- [x] C# ASP.NET Core User Profile service implemented under `sut-polyglot/dotnet-userinfo/` conforming to `specs/userinfo-api_v1.yaml`.
+- [x] Multi-stack orchestrator `createPolyglotCluster()` spawns live Python and .NET targets and bridges audit events.
+- [x] `npm run test:polyglot` executes all 30 canonical Gherkin scenarios against the polyglot stack with 100% green pass rate without changing any test or feature code.
+- [x] Unified `npm run verify` gate validates contract linting, Node.js SUT execution, and Polyglot SUT execution.
 
 ---
 
@@ -77,7 +77,7 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 | Priority | Count | Status Distribution |
 |---|---|---|
 | HIGH (20–30) | 0 | — |
-| MEDIUM (10–19) | 1 | 1 Open (POC-P2-01), 4 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02) |
+| MEDIUM (10–19) | 0 | 5 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01) |
 | LOW (0–9) | 0 | — |
-| **Total Outstanding** | **1** | Phase 2 polyglot expansion |
-| Resolved | 4 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02 |
+| **Total Outstanding** | **0** | All roadmap tickets delivered |
+| Resolved | 5 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01 |

@@ -287,6 +287,15 @@ export class AuthNService {
           });
         }
 
+        // 7. Internal Event Bridge endpoint
+        if (path === '/events' && method === 'POST') {
+          const body = await this.parseBody(req);
+          if (body.channel && body.name && body.payload) {
+            this.eventBus.publish(body.channel, body.name, body.payload);
+          }
+          return this.sendJson(res, 200, { ok: true });
+        }
+
         // Fallback 404
         this.sendJson(res, 404, { code: 'NOT_FOUND', message: 'Endpoint not found' });
       });

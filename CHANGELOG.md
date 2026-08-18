@@ -7,31 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-18
+
+### Added
+- **Phase 2: Polyglot SUT Expansion (`POC-P2-01`)**:
+  - Implemented **Python FastAPI Authorisation Service** (`sut-polyglot/python-authz/`) on port 3002 implementing RBAC (`SecurityAdmin`, `StandardUser`, `Auditor`, `Guest`) and dynamic ABAC ownership evaluation conforming strictly to `specs/authz-api_v1.yaml` with interactive Swagger UI at `/docs`.
+  - Implemented **C# ASP.NET Core User Profile Service** (`sut-polyglot/dotnet-userinfo/`) on port 3003 in .NET 9 Minimal API implementing full profile CRUD (`GET`, `PUT`, `PATCH`, `DELETE`) with email format validation and bearer token enforcement conforming to `specs/userinfo-api_v1.yaml` with Swagger UI at `/docs`.
+  - Added **Polyglot SUT Cluster Manager** (`src/support/polyglotLauncher.ts`) and standalone server runner (`src/sut/polyglotServer.ts`) managing multi-process lifecycle across Node.js, Python, and .NET.
+  - Implemented cross-process event bridge forwarding domain events (`AccessDecisionLogged`, `ProfileUpdated`, `ProfileDeleted`) to the central audit broker over HTTP.
+  - Enabled dynamic SUT target switching (`SUT_TARGET=nodejs` vs `SUT_TARGET=polyglot`).
+  - Added `npm run test:polyglot` executing all **30 canonical BDD Gherkin scenarios** against the multi-stack polyglot backend with a **100% green pass rate** without altering a single scenario or test step.
+  - Updated unified verification gate `scripts/verify.mjs` to validate contract linters, Node.js SUT execution, and Polyglot SUT execution end-to-end.
+
 ## [0.2.0] - 2026-08-18
 
 ### Added
 - **Phase 1: Node.js Baseline SUT & Screenplay Test Suite (`POC-P1-01` & `POC-P1-02`)**:
-  - Implemented Node.js reference SUT services with Swagger UI (`/docs`):
-    - `src/sut/authn/AuthNService.ts`: Authentication service on port 3001 supporting login, RSA JWT generation, JWKS key discovery (`/.well-known/jwks.json`), token verification, session refresh, and logout revocation.
-    - `src/sut/authz/AuthZService.ts`: Policy evaluation service on port 3002 implementing RBAC (`SecurityAdmin`, `StandardUser`, `Auditor`, `Guest`) and ABAC resource-ownership policies.
-    - `src/sut/userinfo/UserProfileService.ts`: User profile service on port 3003 supporting full profile CRUD (`GET`, `PUT`, `PATCH`, `DELETE`) with email validation and bearer authorization checks.
-    - `src/sut/eventbus/EventBus.ts`: In-memory asynchronous event broker dispatching domain events and centralized audit trail records (`audit.events`).
-    - `src/sut/server.ts`: SUT cluster orchestrator providing unified boot/shutdown lifecycle methods.
-  - Implemented Promise-native Screenplay test automation harness using `hand-baked-screenplay-pattern`:
-    - Abilities: `CallAnApi` (HTTP execution and response caching), `ReceiveEvents` (asynchronous event ledger inspection), `HoldTokens` (actor authentication and role context).
-    - Tasks: `AuthenticateWith`, `VerifyToken`, `TerminateSession`, `RefreshToken`, `CheckPermission`, `RetrieveProfile`, `ReplaceProfile`, `PatchProfile`, `DeleteProfile`, `DiscoverKeys`.
-    - Questions: `TheLastResponse`, `TheAccessDecision`, `TheEmittedEvents`, `TheProfileDetails`.
-    - Step Definitions: Complete Cucumber steps in `src/steps/` executing all 30 canonical Gherkin scenarios with 100% green pass rate.
-  - Updated unified verification gate `scripts/verify.mjs` to execute OpenAPI, AsyncAPI, Gherkin AST linting, and the live Cucumber Screenplay test suite.
+  - Implemented Node.js reference SUT services with Swagger UI (`/docs`): AuthN (`AuthNService.ts`), AuthZ (`AuthZService.ts`), User Profile (`UserProfileService.ts`), EventBus (`EventBus.ts`), and cluster orchestrator (`server.ts`).
+  - Implemented Promise-native Screenplay test automation harness using `hand-baked-screenplay-pattern` (Abilities, Tasks, Questions, Cucumber steps).
+  - Executed all 30 canonical Gherkin scenarios in `features/` with 100% green pass rate.
 
 ## [0.1.0] - 2026-08-18
 
 ### Added
 - **Phase 0: Specifications & BDD Gherkin Suite (`POC-P0-01` & `POC-P0-02`)**:
-  - Expanded OpenAPI 3.1 contract schemas (`specs/authn-api_v1.yaml`, `specs/authz-api_v1.yaml`, `specs/userinfo-api_v1.yaml`) with full endpoint operations, JWT `bearerAuth`, RBAC/ABAC models, CRUD schemas, and en-GB documentation.
-  - Expanded AsyncAPI 3.0 contract (`specs/events_v1.yaml`) covering `authn.events`, `authz.events`, `userinfo.events`, and `audit.events` channels with structured CloudEvents-aligned payloads.
-  - Added standalone validator scripts: `scripts/validate-asyncapi.mjs` (`@asyncapi/parser`) and `scripts/validate-gherkin.mjs` (`@cucumber/gherkin`).
-  - Added `redocly.yaml` configuration with linting gates (`npm run lint:openapi`).
-  - Authored canonical BDD Gherkin feature suite under `features/` (30 scenarios across 9 feature files in `authn/`, `authz/`, `profile/`, and `integration/`), establishing the strict single source of truth.
-  - Integrated full verification gate in `scripts/verify.mjs` (`npm run verify`).
-- Initial project structure onboarded into test-automation portfolio under Strategy 3 (`docs/adr/0001-strategy-3-phased-monorepo.md`).
+  - Expanded OpenAPI 3.1 contract schemas (`specs/authn-api_v1.yaml`, `specs/authz-api_v1.yaml`, `specs/userinfo-api_v1.yaml`).
+  - Expanded AsyncAPI 3.0 contract (`specs/events_v1.yaml`).
+  - Authored canonical BDD Gherkin feature suite under `features/` (30 scenarios across 9 feature files).
+  - Integrated verification gate in `scripts/verify.mjs`.
