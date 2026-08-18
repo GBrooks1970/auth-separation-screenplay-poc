@@ -1,49 +1,295 @@
 openapi: 3.1.0
 info:
-  title: Authorization API (AuthZ)
+  title: Authorisation Service API (AuthZ)
   version: 1.0.0
-  description: Evaluates roles, policies, and permissions to return access decisions.
+  description: |
+    The Authorisation (AuthZ) service evaluates access control policies, roles, and
+    permissions to render access decisions for authenticated users. It operates
+    independently of identity credential storage and user profile management.
+  contact:
+    name: Platform Engineering Team
+  license:
+    name: MIT
+    identifier: MIT
 servers:
   - url: http://localhost:3002
-    description: Local development server
+    description: Local development server (Node.js reference SUT)
 paths:
   /authz/check-permission:
     post:
-      summary: Evaluate access permission
+      tags:
+        - policy-evaluation
+      summary: Evaluate access control decision
+      description: Evaluates whether a specified user or role is permitted to perform a target action on a protected resource.
       operationId: checkPermission
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [user_id, role, action, resource]
-              properties:
-                user_id:
-                  type: string
-                role:
-                  type: string
-                action:
-                  type: string
-                resource:
-                  type: string
+              $ref: '#/components/schemas/PermissionCheckRequest'
       responses:
         '200':
-          description: Access decision evaluated
+          description: Permission evaluation completed successfully
           content:
             application/json:
               schema:
-                type: object
-                required: [decision]
-                properties:
-                  decision:
-                    type: string
-                    enum: [PERMITTED, DENIED]
+                $ref: '#/components/schemas/PermissionCheckResponse'
+        '400':
+          description: Malformed permission check request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '403':
-          description: Access denied
+          description: Explicit access denial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionCheckResponse'
+
+  /authz/roles/{user_id}:
+    get:
+      tags:
+        - role-query
+      summary: Retrieve assigned roles and permissions for user
+      description: Returns the active roles and compiled permissions granted to the specified user identifier.
+      operationId: getUserRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            example: usr_alice_123
+      responses:
+        '200':
+          description: User roles and permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesResponse'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User or role mapping not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /authz/permissions:
+    get:
+      tags:
+        - policy-catalog
+      summary: List system permission definitions
+      description: Returns all supported roles, actions, and resources configured in the policy evaluation engine.
+      operationId: listPermissionsCatalog
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Permissions catalog retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsCatalogResponse'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: JWT token issued by the AuthN service.
+
+  schemas:
+    PermissionCheckRequest:
+      type: object
+      required:
+        - user_id
+        - role
+        - action
+        - resource
+      properties:
+        user_id:
+          type: string
+          description: Subject user ID requesting access
+          example: usr_alice_123
+        role:
+          type: string
+          description: Declared role of the subject
+          enum:
+            - SecurityAdmin
+            - StandardUser
+            - Auditor
+            - Guest
+          example: SecurityAdmin
+        action:
+          type: string
+          description: Action verb being attempted
+          enum:
+            - CREATE
+            - READ
+            - UPDATE
+            - DELETE
+          example: UPDATE
+        resource:
+          type: string
+          description: Target resource namespace or identifier
+          example: UserRole
+        resource_owner_id:
+          type: string
+          description: Optional owner ID for resource-level ownership validation
+          example: usr_alice_123
+
+    PermissionCheckResponse:
+      type: object
+      required:
+        - decision
+        - user_id
+        - action
+        - resource
+        - evaluated_at
+      properties:
+        decision:
+          type: string
+          enum:
+            - PERMITTED
+            - DENIED
+          example: PERMITTED
+        user_id:
+          type: string
+          example: usr_alice_123
+        action:
+          type: string
+          example: UPDATE
+        resource:
+          type: string
+          example: UserRole
+        reason:
+          type: string
+          description: Human-readable policy evaluation rationale
+          example: SecurityAdmin role has full UPDATE grant on UserRole
+        evaluated_at:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:00Z'
+
+    UserRolesResponse:
+      type: object
+      required:
+        - user_id
+        - roles
+        - permissions
+      properties:
+        user_id:
+          type: string
+          example: usr_alice_123
+        roles:
+          type: array
+          items:
+            type: string
+          example:
+            - SecurityAdmin
+        permissions:
+          type: array
+          items:
+            type: string
+          example:
+            - 'UserRole:UPDATE'
+            - 'SecurityPolicy:READ'
+            - 'SecurityPolicy:UPDATE'
+
+    PermissionsCatalogResponse:
+      type: object
+      required:
+        - roles
+        - actions
+        - resources
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+          example:
+            - SecurityAdmin
+            - StandardUser
+            - Auditor
+            - Guest
+        actions:
+          type: array
+          items:
+            type: string
+          example:
+            - CREATE
+            - READ
+            - UPDATE
+            - DELETE
+        resources:
+          type: array
+          items:
+            type: string
+          example:
+            - UserRole
+            - SecurityPolicy
+            - UserProfile
+            - AuditLog
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                example: role
+              message:
+                type: string
+                example: Must be one of SecurityAdmin, StandardUser, Auditor, Guest
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: INVALID_SUBJECT
+        message:
+          type: string
+          example: The specified subject could not be resolved or evaluated

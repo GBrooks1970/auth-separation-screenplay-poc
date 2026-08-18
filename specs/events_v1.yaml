@@ -1,30 +1,375 @@
 asyncapi: 3.0.0
 info:
-  title: Authentication & Audit Events API
+  title: Authentication & Audit Domain Events API
   version: 1.0.0
-  description: Asynchronous event messaging for cross-service notifications and audit logging.
+  description: |
+    Asynchronous event messaging contract for cross-service state propagation,
+    notifications, and audit logging across AuthN, AuthZ, and User Profile services.
+    Direct cross-service database access is prohibited; all integration occurs via
+    these event channels.
+  contact:
+    name: Platform Engineering Team
+  license:
+    name: MIT
+
+defaultContentType: application/json
+
+servers:
+  localBus:
+    host: localhost:6379
+    protocol: redis
+    description: Local Redis pub/sub broker for event distribution
+
 channels:
-  auditEvents:
-    address: audit.events
+  authn.events:
+    address: authn.events
+    description: Authentication lifecycle events broadcast by the AuthN service
     messages:
-      accessDecisionLogged:
+      UserAuthenticated:
+        $ref: '#/components/messages/UserAuthenticated'
+      AuthenticationFailed:
+        $ref: '#/components/messages/AuthenticationFailed'
+      SessionRevoked:
+        $ref: '#/components/messages/SessionRevoked'
+
+  authz.events:
+    address: authz.events
+    description: Authorisation and policy decision events broadcast by the AuthZ service
+    messages:
+      AccessDecisionLogged:
         $ref: '#/components/messages/AccessDecisionLogged'
+      RoleAssigned:
+        $ref: '#/components/messages/RoleAssigned'
+      PermissionRevoked:
+        $ref: '#/components/messages/PermissionRevoked'
+
+  userinfo.events:
+    address: userinfo.events
+    description: Profile lifecycle events broadcast by the User Profile service
+    messages:
+      ProfileUpdated:
+        $ref: '#/components/messages/ProfileUpdated'
+      ProfileDeleted:
+        $ref: '#/components/messages/ProfileDeleted'
+
+  audit.events:
+    address: audit.events
+    description: Centralised immutable audit channel capturing all security-sensitive actions
+    messages:
+      AuditRecordLogged:
+        $ref: '#/components/messages/AuditRecordLogged'
+      AccessDecisionLogged:
+        $ref: '#/components/messages/AccessDecisionLogged'
+
+operations:
+  publishAuthnEvents:
+    action: send
+    channel:
+      $ref: '#/channels/authn.events'
+
+  publishAuthzEvents:
+    action: send
+    channel:
+      $ref: '#/channels/authz.events'
+
+  publishUserInfoEvents:
+    action: send
+    channel:
+      $ref: '#/channels/userinfo.events'
+
+  subscribeAuditEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/audit.events'
+
 components:
   messages:
+    UserAuthenticated:
+      name: UserAuthenticated
+      title: User Authenticated Event
+      summary: Broadcast when a user successfully authenticates and receives an access token
+      payload:
+        $ref: '#/components/schemas/UserAuthenticatedPayload'
+
+    AuthenticationFailed:
+      name: AuthenticationFailed
+      title: Authentication Failed Event
+      summary: Broadcast when an authentication attempt fails due to invalid credentials
+      payload:
+        $ref: '#/components/schemas/AuthenticationFailedPayload'
+
+    SessionRevoked:
+      name: SessionRevoked
+      title: Session Revoked Event
+      summary: Broadcast when a user session or token is invalidated
+      payload:
+        $ref: '#/components/schemas/SessionRevokedPayload'
+
     AccessDecisionLogged:
       name: AccessDecisionLogged
       title: Access Decision Logged Event
+      summary: Broadcast when the AuthZ policy engine renders a permission decision
       payload:
-        type: object
-        required: [user_id, action, resource, decision, timestamp]
-        properties:
-          user_id:
+        $ref: '#/components/schemas/AccessDecisionLoggedPayload'
+
+    RoleAssigned:
+      name: RoleAssigned
+      title: Role Assigned Event
+      summary: Broadcast when a new role is assigned to a user subject
+      payload:
+        $ref: '#/components/schemas/RoleAssignedPayload'
+
+    PermissionRevoked:
+      name: PermissionRevoked
+      title: Permission Revoked Event
+      summary: Broadcast when a specific permission is revoked from a role or user
+      payload:
+        $ref: '#/components/schemas/PermissionRevokedPayload'
+
+    ProfileUpdated:
+      name: ProfileUpdated
+      title: Profile Updated Event
+      summary: Broadcast when user profile attributes or preferences are updated
+      payload:
+        $ref: '#/components/schemas/ProfileUpdatedPayload'
+
+    ProfileDeleted:
+      name: ProfileDeleted
+      title: Profile Deleted Event
+      summary: Broadcast when a user profile is erased
+      payload:
+        $ref: '#/components/schemas/ProfileDeletedPayload'
+
+    AuditRecordLogged:
+      name: AuditRecordLogged
+      title: Generic Audit Record Logged Event
+      summary: Broadcast when an immutable security audit entry is persisted
+      payload:
+        $ref: '#/components/schemas/AuditRecordLoggedPayload'
+
+  schemas:
+    UserAuthenticatedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - username
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authn_01a
+        user_id:
+          type: string
+          example: usr_alice_123
+        username:
+          type: string
+          example: alice@example.com
+        ip_address:
+          type: string
+          example: 127.0.0.1
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:00Z'
+
+    AuthenticationFailedPayload:
+      type: object
+      required:
+        - event_id
+        - username
+        - reason
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authn_01b
+        username:
+          type: string
+          example: bob@example.com
+        reason:
+          type: string
+          example: INVALID_CREDENTIALS
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:01Z'
+
+    SessionRevokedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authn_01c
+        user_id:
+          type: string
+          example: usr_alice_123
+        reason:
+          type: string
+          example: USER_LOGOUT
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:02Z'
+
+    AccessDecisionLoggedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - action
+        - resource
+        - decision
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authz_02a
+        user_id:
+          type: string
+          example: usr_alice_123
+        role:
+          type: string
+          example: SecurityAdmin
+        action:
+          type: string
+          example: UPDATE
+        resource:
+          type: string
+          example: UserRole
+        decision:
+          type: string
+          enum: [PERMITTED, DENIED]
+          example: PERMITTED
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:03Z'
+
+    RoleAssignedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - role
+        - assigned_by
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authz_02b
+        user_id:
+          type: string
+          example: usr_alice_123
+        role:
+          type: string
+          example: SecurityAdmin
+        assigned_by:
+          type: string
+          example: usr_superadmin_001
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:04Z'
+
+    PermissionRevokedPayload:
+      type: object
+      required:
+        - event_id
+        - role
+        - permission
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_authz_02c
+        role:
+          type: string
+          example: StandardUser
+        permission:
+          type: string
+          example: 'SecurityPolicy:DELETE'
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:05Z'
+
+    ProfileUpdatedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - updated_fields
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_prof_03a
+        user_id:
+          type: string
+          example: usr_alice_123
+        updated_fields:
+          type: array
+          items:
             type: string
-          action:
-            type: string
-          resource:
-            type: string
-          decision:
-            type: string
-          timestamp:
-            type: string
+          example:
+            - name
+            - preferences.theme
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:06Z'
+
+    ProfileDeletedPayload:
+      type: object
+      required:
+        - event_id
+        - user_id
+        - timestamp
+      properties:
+        event_id:
+          type: string
+          example: evt_prof_03b
+        user_id:
+          type: string
+          example: usr_alice_123
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:07Z'
+
+    AuditRecordLoggedPayload:
+      type: object
+      required:
+        - audit_id
+        - correlation_id
+        - source_service
+        - event_name
+        - actor_id
+        - timestamp
+      properties:
+        audit_id:
+          type: string
+          example: aud_9901a
+        correlation_id:
+          type: string
+          example: corr_55481_abc
+        source_service:
+          type: string
+          example: AuthZService
+        event_name:
+          type: string
+          example: AccessDecisionLogged
+        actor_id:
+          type: string
+          example: usr_alice_123
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:45:08Z'

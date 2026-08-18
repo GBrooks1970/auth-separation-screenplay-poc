@@ -2,41 +2,346 @@ openapi: 3.1.0
 info:
   title: User Profile API
   version: 1.0.0
-  description: Manages user profile details and settings linked by user_id.
+  description: |
+    The User Profile service manages application-specific user profile attributes,
+    contact details, and user preferences keyed by a stable unique user identifier.
+    It relies on external identity assertion and authorisation before serving or mutating data.
+  contact:
+    name: Platform Engineering Team
+  license:
+    name: MIT
+    identifier: MIT
 servers:
   - url: http://localhost:3003
-    description: Local development server
+    description: Local development server (Node.js reference SUT)
 paths:
   /profiles/{user_id}:
     get:
+      tags:
+        - profile
       summary: Retrieve user profile
+      description: Returns the stored profile information for the specified user identifier.
       operationId: getProfile
+      security:
+        - bearerAuth: []
       parameters:
         - name: user_id
           in: path
           required: true
+          description: Unique user identifier
           schema:
             type: string
+            example: usr_alice_123
       responses:
         '200':
-          description: Profile retrieved
+          description: Profile retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                required: [user_id, name, email]
-                properties:
-                  user_id:
-                    type: string
-                  name:
-                    type: string
-                  email:
-                    type: string
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access forbidden by authorisation policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Profile not found for the specified user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - profile
+      summary: Replace entire user profile
+      description: Fully updates the profile details for the specified user identifier.
+      operationId: replaceProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            example: usr_alice_123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - profile
+      summary: Partially update user profile
+      description: Applies selective field modifications to an existing user profile.
+      operationId: patchProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            example: usr_alice_123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchProfileRequest'
+      responses:
+        '200':
+          description: Profile patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Invalid patch payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - profile
+      summary: Delete user profile
+      description: Removes profile records in compliance with data privacy/erasure requests.
+      operationId: deleteProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique user identifier
+          schema:
+            type: string
+            example: usr_alice_123
+      responses:
+        '204':
+          description: Profile deleted successfully
+        '401':
+          description: Unauthenticated caller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: JWT token issued by the AuthN service.
+
+  schemas:
+    UserProfile:
+      type: object
+      required:
+        - user_id
+        - name
+        - email
+        - created_at
+        - updated_at
+      properties:
+        user_id:
+          type: string
+          description: Stable unique user identifier
+          example: usr_alice_123
+        name:
+          type: string
+          description: Full display name
+          example: Alice Smith
+        email:
+          type: string
+          format: email
+          description: Primary email address
+          example: alice@example.com
+        avatar_url:
+          type: string
+          format: uri
+          description: Profile avatar image URL
+          example: https://avatars.example.com/alice.png
+        phone_number:
+          type: string
+          description: Contact telephone number
+          example: '+44 20 7946 0912'
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        created_at:
+          type: string
+          format: date-time
+          example: '2026-01-15T09:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2026-08-18T10:00:00Z'
+
+    UserPreferences:
+      type: object
+      properties:
+        locale:
+          type: string
+          default: en-GB
+          example: en-GB
+        theme:
+          type: string
+          enum: [light, dark, system]
+          default: system
+          example: dark
+        email_notifications:
+          type: boolean
+          default: true
+          example: true
+
+    UpdateProfileRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: Alice Smith
+        email:
+          type: string
+          format: email
+          example: alice@example.com
+        avatar_url:
+          type: string
+          format: uri
+          example: https://avatars.example.com/alice.png
+        phone_number:
+          type: string
+          example: '+44 20 7946 0912'
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+
+    PatchProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Alice Smith-Jones
+        email:
+          type: string
+          format: email
+          example: alice.jones@example.com
+        avatar_url:
+          type: string
+          format: uri
+          example: https://avatars.example.com/alice-new.png
+        phone_number:
+          type: string
+          example: '+44 20 7946 0999'
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+
+    ValidationError:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                example: email
+              message:
+                type: string
+                example: Value is not a valid email address
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: PROFILE_NOT_FOUND
+        message:
+          type: string
+          example: The requested profile could not be found
