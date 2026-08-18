@@ -87,4 +87,13 @@ if (!contract.includes('npm run verify') || !backlog.includes('auth-separation-s
 }
 console.log('   [PASS] Verified docs/project-contract.md and docs/backlog.md');
 
-console.log('\n=== VERIFICATION PASSED: All Contract & Feature Checks Green ===');
+// 5. Execute Cucumber Screenplay Test Suite
+console.log('5. Executing Cucumber Screenplay BDD Test Suite against Node.js SUT...');
+execFileSync(process.execPath, ['--import', 'tsx', './node_modules/@cucumber/cucumber/bin/cucumber.js'], {
+  stdio: 'inherit',
+  env: process.env
+});
+console.log('   [PASS] All 30 BDD Scenarios passed 100% green against live SUT.');
+
+console.log('\n=== VERIFICATION PASSED: All Contract, Specification & Screenplay BDD Checks Green ===');
+

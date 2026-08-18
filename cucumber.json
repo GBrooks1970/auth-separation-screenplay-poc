@@ -1,0 +1,13 @@
+{
+  "default": {
+    "paths": ["features/**/*.feature"],
+    "import": [
+      "tsx",
+      "src/support/hooks.ts",
+      "src/steps/**/*.ts"
+    ],
+    "format": [
+      "summary"
+    ]
+  }
+}

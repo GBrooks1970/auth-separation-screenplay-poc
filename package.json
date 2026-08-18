@@ -1,14 +1,16 @@
 {
   "name": "auth-separation-screenplay-poc",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pedagogical multi-stack demonstration of SDD with BDD using the Screenplay design pattern across separated AuthN, AuthZ, and User Profile APIs.",
   "type": "module",
   "scripts": {
+    "start:sut": "tsx src/sut/server.ts",
     "lint:openapi": "redocly lint",
     "lint:asyncapi": "node scripts/validate-asyncapi.mjs",
     "lint:gherkin": "node scripts/validate-gherkin.mjs",
+    "test:bdd": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
+    "test": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "verify": "node scripts/verify.mjs",
-    "test": "npm run verify",
     "build": "tsc --noEmit"
   },
   "keywords": [
@@ -22,11 +24,17 @@
   ],
   "author": "Gary Brooks",
   "license": "MIT",
+  "dependencies": {
+    "hand-baked-screenplay-pattern": "file:../hand-baked-screenplay-pattern"
+  },
   "devDependencies": {
     "@asyncapi/parser": "^3.0.0",
+    "@cucumber/cucumber": "^11.2.0",
     "@cucumber/gherkin": "^28.0.0",
     "@cucumber/messages": "^24.0.0",
     "@redocly/cli": "^1.18.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.5.0"
   }
 }

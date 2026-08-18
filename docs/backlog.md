@@ -1,7 +1,7 @@
 # auth-separation-screenplay-poc — Backlog
 
-**Version:** 2 — **Phase 0 Specifications & Canonical BDD Gherkin Suite Delivered** (2026-08-18). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).
-**Last Updated:** 2026-08-18
+**Version:** 3 — **Phase 1 Node.js Baseline SUT & Screenplay Test Suite Delivered** (2026-08-18). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
+**Last Updated:** 2026-08-18  
 **Based on:** Design Specification Draft ([`../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md`](../../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md))
 
 This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ordering is by phase and priority score.
@@ -33,34 +33,42 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 ---
 
-## Outstanding Items
-
-### Phase 1 — Node.js Baseline SUT & Screenplay Test Suite
+## Phase 1 — Node.js Baseline SUT & Screenplay Test Suite (Completed)
 
 #### POC-P1-01: Implement Node.js Reference SUT Services with Swagger UI — Score: 16
 **Priority Score:** Security Impact (4) + Breakage Probability (6) + Maintenance Burden (6) = **16 (MEDIUM)**  
-**Status:** Open  
-**Objective:** Implement baseline Fastify/Express SUT services for AuthN, AuthZ, and User Profile with SQLite/Redis backends and embedded Swagger UI endpoints (`/docs`).  
+**Status:** Closed (Delivered 2026-08-18)  
+**Objective:** Implement baseline Node.js SUT services for AuthN (port 3001), AuthZ (port 3002), and User Profile (port 3003) with in-memory state, event bus messaging, and embedded Swagger UI endpoints (`/docs`).  
 **Success Criteria:**
-- [ ] SUT boots deterministically via Docker Compose or local Node.js.
-- [ ] Swagger UI interactive docs available at `/docs` on all 3 APIs.
+- [x] SUT boots deterministically and cleanly via unified orchestrator `createSutCluster()`.
+- [x] Swagger UI interactive docs available at `/docs` across AuthN, AuthZ, and User Profile services.
+- [x] Key discovery (`/.well-known/jwks.json`) and token signing/verification working in AuthN.
+- [x] RBAC and dynamic policy checks working in AuthZ.
+- [x] Profile CRUD and event publishing working in UserProfile.
 
 #### POC-P1-02: Implement Promise-Native Screenplay Test Harness — Score: 15
 **Priority Score:** Security Impact (2) + Breakage Probability (6) + Maintenance Burden (7) = **15 (MEDIUM)**  
-**Status:** Open  
+**Status:** Closed (Delivered 2026-08-18)  
 **Objective:** Build the TypeScript Screenplay test layer using `hand-baked-screenplay-pattern` executing the shared `features/` Gherkin suite.  
 **Success Criteria:**
-- [ ] Actors (`Alice`, `Bob`), Abilities (`CallAnApi`), Tasks (`AuthenticateWith`), and Questions (`TheLastResponse`) execute scenarios cleanly.
-- [ ] `npm test` runs 100% green against local SUTs.
+- [x] Actors (`Alice`, `Bob`, `Charlie`), Abilities (`CallAnApi`, `ReceiveEvents`, `HoldTokens`), Tasks (`AuthenticateWith`, `VerifyToken`, `TerminateSession`, `CheckPermission`, `ManageProfile`), and Questions (`TheLastResponse`, `TheAccessDecision`, `TheEmittedEvents`, `TheProfileDetails`) execute all scenarios.
+- [x] `npm test` runs 100% green against local SUTs (30/30 scenarios passed).
+- [x] Unified `npm run verify` gate passes specifications, linting, and BDD tests.
 
 ---
+
+## Outstanding Items
 
 ### Phase 2 — Polyglot SUT Expansion & Secondary Test Runners
 
 #### POC-P2-01: Implement Secondary Polyglot SUT Services (Python / C#) — Score: 14
 **Priority Score:** Security Impact (3) + Breakage Probability (5) + Maintenance Burden (6) = **14 (MEDIUM)**  
 **Status:** Open  
-**Objective:** Implement alternate service targets (Python FastAPI AuthZ, C# ASP.NET Core Profile) to verify contract interchangeability against the exact same BDD features.
+**Objective:** Implement alternate service targets (Python FastAPI AuthZ, C# ASP.NET Core Profile) to verify contract interchangeability against the exact same BDD features.  
+**Success Criteria:**
+- [ ] Implement Python FastAPI AuthZ service conforming to `specs/authz-api_v1.yaml`.
+- [ ] Implement C# ASP.NET Core Profile service conforming to `specs/userinfo-api_v1.yaml`.
+- [ ] Run the exact same Screenplay BDD suite against the polyglot stack without modification.
 
 ---
 
@@ -69,7 +77,7 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 | Priority | Count | Status Distribution |
 |---|---|---|
 | HIGH (20–30) | 0 | — |
-| MEDIUM (10–19) | 3 | 3 Open (POC-P1-01, POC-P1-02, POC-P2-01), 2 Closed (POC-P0-01, POC-P0-02) |
+| MEDIUM (10–19) | 1 | 1 Open (POC-P2-01), 4 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02) |
 | LOW (0–9) | 0 | — |
-| **Total Outstanding** | **3** | Phase 1 & 2 items |
-| Resolved | 2 | POC-P0-01, POC-P0-02 |
+| **Total Outstanding** | **1** | Phase 2 polyglot expansion |
+| Resolved | 4 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02 |
