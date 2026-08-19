@@ -5,6 +5,11 @@ process.env.SUT_TARGET = 'polyglot';
 console.log('=== Executing BDD Feature Suite against Polyglot SUT (Node AuthN, Python FastAPI AuthZ, C# .NET UserProfile) ===');
 
 try {
+  // Pre-build .NET project for instantaneous subprocess execution
+  execFileSync('dotnet', ['build', 'sut-polyglot/dotnet-userinfo', '-v', 'q', '-nologo'], {
+    stdio: 'ignore'
+  });
+
   execFileSync(process.execPath, ['--import', 'tsx', './node_modules/@cucumber/cucumber/bin/cucumber.js'], {
     stdio: 'inherit',
     env: process.env

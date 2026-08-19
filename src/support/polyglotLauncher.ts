@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from 'node:child_process';
 import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 import { AuthNService } from '../sut/authn/AuthNService.js';
 import { EventBus, globalEventBus } from '../sut/eventbus/EventBus.js';
 
@@ -11,7 +12,7 @@ export interface PolyglotCluster {
   reset: () => Promise<void>;
 }
 
-async function waitForPort(url: string, timeoutMs: number = 10000): Promise<boolean> {
+async function waitForPort(url: string, timeoutMs: number = 25000): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
@@ -54,7 +55,12 @@ export function createPolyglotCluster(
 
       // 3. Spawn C# ASP.NET Core User Profile service on port 3003
       const dotnetCwd = join(process.cwd(), 'sut-polyglot', 'dotnet-userinfo');
-      dotnetProcess = spawn('dotnet', ['run', '--project', dotnetCwd, '--urls', `http://localhost:${userinfoPort}`], {
+      const dllPath = join(dotnetCwd, 'bin', 'Debug', 'net9.0', 'UserProfileService.dll');
+      const dotnetArgs = existsSync(dllPath)
+        ? [dllPath, '--urls', `http://localhost:${userinfoPort}`]
+        : ['run', '--project', dotnetCwd, '--urls', `http://localhost:${userinfoPort}`];
+
+      dotnetProcess = spawn('dotnet', dotnetArgs, {
         cwd: dotnetCwd,
         stdio: 'pipe',
         env: { ...process.env, ASPNETCORE_ENVIRONMENT: 'Development' }
@@ -95,19 +101,11 @@ export function createPolyglotCluster(
       eventBus.clear();
       authn.reset();
 
-      // Reset Python AuthZ in-memory state
-      try {
-        await fetch(`http://localhost:${authzPort}/internal/reset`, { method: 'POST' });
-      } catch {
-        // ignore if already clean
-      }
-
-      // Reset .NET User Profile in-memory state
-      try {
-        await fetch(`http://localhost:${userinfoPort}/internal/reset`, { method: 'POST' });
-      } catch {
-        // ignore if already clean
-      }
+      // Reset state on Python and .NET microservices via HTTP /internal/reset
+      await Promise.all([
+        fetch(`http://localhost:${authzPort}/internal/reset`, { method: 'POST' }).catch(() => {}),
+        fetch(`http://localhost:${userinfoPort}/internal/reset`, { method: 'POST' }).catch(() => {})
+      ]);
     }
   };
 }
