@@ -87,13 +87,22 @@ if (!contract.includes('npm run verify') || !backlog.includes('auth-separation-s
 }
 console.log('   [PASS] Verified docs/project-contract.md and docs/backlog.md');
 
-// 5. Execute Cucumber Screenplay Test Suite
-console.log('5. Executing Cucumber Screenplay BDD Test Suite against Node.js SUT...');
+// 5. Execute Cucumber Screenplay Test Suite against Node.js Reference SUT
+console.log('5. Executing Cucumber Screenplay BDD Test Suite against Node.js Reference SUT...');
 execFileSync(process.execPath, ['--import', 'tsx', './node_modules/@cucumber/cucumber/bin/cucumber.js'], {
+  stdio: 'inherit',
+  env: { ...process.env, SUT_TARGET: 'nodejs' }
+});
+console.log('   [PASS] All 30 BDD Scenarios passed 100% green against Node.js SUT.');
+
+// 6. Execute Cucumber Screenplay Test Suite against Polyglot SUT
+console.log('6. Executing Cucumber Screenplay BDD Test Suite against Polyglot Multi-Stack SUT (Node + Python + C#)...');
+execFileSync(process.execPath, ['scripts/run-polyglot-tests.mjs'], {
   stdio: 'inherit',
   env: process.env
 });
-console.log('   [PASS] All 30 BDD Scenarios passed 100% green against live SUT.');
+console.log('   [PASS] All 30 BDD Scenarios passed 100% green against Polyglot SUT.');
 
-console.log('\n=== VERIFICATION PASSED: All Contract, Specification & Screenplay BDD Checks Green ===');
+console.log('\n=== VERIFICATION PASSED: All Contract, Specification, Node & Polyglot Screenplay Checks Green ===');
+
 

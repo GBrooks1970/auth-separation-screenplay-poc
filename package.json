@@ -1,17 +1,19 @@
 {
   "name": "auth-separation-screenplay-poc",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Pedagogical multi-stack demonstration of SDD with BDD using the Screenplay design pattern across separated AuthN, AuthZ, and User Profile APIs.",
   "type": "module",
   "scripts": {
     "start:sut": "tsx src/sut/server.ts",
+    "start:polyglot": "tsx src/sut/polyglotServer.ts",
     "lint:openapi": "redocly lint",
     "lint:asyncapi": "node scripts/validate-asyncapi.mjs",
     "lint:gherkin": "node scripts/validate-gherkin.mjs",
     "test:bdd": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
+    "test:polyglot": "node scripts/run-polyglot-tests.mjs",
     "test": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "verify": "node scripts/verify.mjs",
-    "build": "tsc --noEmit"
+    "build": "tsc --noEmit && dotnet build sut-polyglot/dotnet-userinfo"
   },
   "keywords": [
     "sdd",
@@ -20,7 +22,10 @@
     "openapi",
     "asyncapi",
     "cucumber",
-    "auth-separation"
+    "auth-separation",
+    "polyglot",
+    "fastapi",
+    "dotnet"
   ],
   "author": "Gary Brooks",
   "license": "MIT",

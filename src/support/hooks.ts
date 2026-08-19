@@ -9,6 +9,6 @@ AfterAll(async function () {
   await stageManager.sut.stop();
 });
 
-Before(function () {
-  stageManager.reset();
+Before(async function () {
+  await stageManager.reset();
 });

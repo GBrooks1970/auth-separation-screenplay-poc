@@ -3,7 +3,16 @@ import { CallAnApi } from '../screenplay/abilities/CallAnApi.js';
 import { ReceiveEvents } from '../screenplay/abilities/ReceiveEvents.js';
 import { HoldTokens } from '../screenplay/abilities/HoldTokens.js';
 import { globalEventBus } from '../sut/eventbus/EventBus.js';
-import { createSutCluster, type SutCluster } from '../sut/server.js';
+import { createSutCluster } from '../sut/server.js';
+import { createPolyglotCluster } from './polyglotLauncher.js';
+import { AuthNService } from '../sut/authn/AuthNService.js';
+
+export interface GenericSutCluster {
+  authn: AuthNService;
+  start: () => Promise<void>;
+  stop: () => Promise<void>;
+  reset: () => Promise<void> | void;
+}
 
 class AuthTestCast implements Cast {
   prepare(actor: Actor): Actor {
@@ -18,12 +27,15 @@ class AuthTestCast implements Cast {
 export class TestStageManager {
   private static instance: TestStageManager;
   public stage: Stage;
-  public sut: SutCluster;
+  public sut: GenericSutCluster;
   private currentActorName: string = 'Alice';
 
   private constructor() {
     this.stage = new Stage(new AuthTestCast());
-    this.sut = createSutCluster(3001, 3002, 3003, globalEventBus);
+    const isPolyglot = process.env.SUT_TARGET === 'polyglot';
+    this.sut = isPolyglot
+      ? createPolyglotCluster(3001, 3002, 3003, globalEventBus)
+      : createSutCluster(3001, 3002, 3003, globalEventBus);
   }
 
   static getInstance(): TestStageManager {
@@ -42,10 +54,10 @@ export class TestStageManager {
     return this.stage.actor(this.currentActorName);
   }
 
-  reset(): void {
+  async reset(): Promise<void> {
     globalEventBus.clear();
-    this.sut.authn.reset();
-    this.sut.userinfo.reset();
+    await this.sut.reset();
+
     // Default tokens and role initialization per actor name
     const alice = this.actorNamed('Alice');
     alice.abilityTo(HoldTokens).set({ userId: 'usr_alice_123', username: 'alice@example.com', role: 'SecurityAdmin' });

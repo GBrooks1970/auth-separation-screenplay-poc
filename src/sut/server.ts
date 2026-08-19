@@ -10,6 +10,7 @@ export interface SutCluster {
   eventBus: EventBus;
   start: () => Promise<void>;
   stop: () => Promise<void>;
+  reset: () => void;
 }
 
 export function createSutCluster(
@@ -38,6 +39,11 @@ export function createSutCluster(
       await Promise.all([authn.stop(), authz.stop(), userinfo.stop()]);
       eventBus.clear();
       console.log(' [SUT] All reference services stopped.');
+    },
+    reset: () => {
+      eventBus.clear();
+      authn.reset();
+      userinfo.reset();
     }
   };
 }
