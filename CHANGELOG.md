@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `.github/workflows/ci.yml` executing unified verification gate across Node.js 20 and 22 with least-privilege permissions (`contents: read`).
   - Configured multi-stack dependencies including Python 3.12 (FastAPI), .NET 9 SDK (ASP.NET Core User Profile), and automated checkout/build of `hand-baked-screenplay-pattern` provider.
 
+### Security
+- **Phase 3: Remediate npm audit Security Vulnerabilities (`POC-P3-02`)**:
+  - Upgraded `@redocly/cli` to `^2.51.2` eliminating `@faker-js/faker` arbitrary code execution advisory and OpenTelemetry transitive vulnerabilities.
+  - Added dependency overrides for `fast-uri` (`^3.1.7`) and `uuid` (`^11.1.1`), resolving SSRF/host confusion and buffer bounds check vulnerabilities.
+  - Reduced `npm audit` advisories from 21 (6 high, 15 moderate) to 0 vulnerabilities.
+
 ## [0.3.0] - 2026-08-18
 
 ### Added

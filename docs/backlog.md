@@ -85,12 +85,12 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 #### POC-P3-02: Remediate npm audit Security Vulnerabilities — Score: 20
 **Priority Score:** Security Impact (8) + Breakage Probability (6) + Maintenance Burden (6) = **20 (HIGH)**  
-**Status:** Open  
+**Status:** Closed (2026-09-07)  
 **Objective:** Remediate 21 vulnerabilities (6 high, 15 moderate) reported by `npm audit` across `@redocly/cli`, `fast-uri`, and `@cucumber/messages`.  
 **Success Criteria:**
-- [ ] High-severity `fast-uri` (SSRF/host confusion) and `@faker-js/faker` advisories resolved.
-- [ ] `npm audit` reports 0 vulnerabilities (or only accepted low-risk non-exploitable transitive dev dependencies).
-- [ ] `npm run verify` continues to pass 100% green without contract, linter, or BDD test regressions.
+- [x] High-severity `fast-uri` (SSRF/host confusion) and `@faker-js/faker` advisories resolved.
+- [x] `npm audit` reports 0 vulnerabilities (or only accepted low-risk non-exploitable transitive dev dependencies).
+- [x] `npm run verify` continues to pass 100% green without contract, linter, or BDD test regressions.
 
 #### POC-P3-03: Legal & Packaging Normalisation — Score: 8
 **Priority Score:** Security Impact (1) + Breakage Probability (2) + Maintenance Burden (5) = **8 (LOW)**  
@@ -115,8 +115,8 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 | Priority | Count | Status Distribution |
 |---|---|---|
-| HIGH (20–30) | 1 | 1 Open (POC-P3-02) |
+| HIGH (20–30) | 0 | 1 Closed (POC-P3-02) |
 | MEDIUM (10–19) | 1 | 1 Open (POC-P3-04), 6 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01) |
 | LOW (0–9) | 1 | 1 Open (POC-P3-03) |
-| **Total Outstanding** | **3** | POC-P3-02, POC-P3-03, POC-P3-04 |
-| Resolved | 6 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01 |
+| **Total Outstanding** | **2** | POC-P3-03, POC-P3-04 |
+| Resolved | 7 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02 |
