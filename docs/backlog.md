@@ -1,8 +1,8 @@
 # auth-separation-screenplay-poc — Backlog
 
-**Version:** 4 — **Phase 2 Polyglot SUT Expansion Delivered** (2026-08-18). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
-**Last Updated:** 2026-08-18  
-**Based on:** Design Specification Draft ([`../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md`](../../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md))
+**Version:** 5 — **Phase 3 Operational Hardening & Maintenance Established** (2026-09-07). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
+**Last Updated:** 2026-09-07  
+**Based on:** Design Specification Draft ([`../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md`](../../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md)) and Initial Code Review (`.review/CODE_REVIEW_Antigravity_v1_20260819T1000Z`)
 
 This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ordering is by phase and priority score.
 
@@ -72,12 +72,51 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 ---
 
+## Phase 3 — Operational Hardening & Maintenance
+
+#### POC-P3-01: Add GitHub Actions CI Matrix Workflow — Score: 18
+**Priority Score:** Security Impact (3) + Breakage Probability (7) + Maintenance Burden (8) = **18 (MEDIUM)**  
+**Status:** Open  
+**Objective:** Establish `.github/workflows/ci.yml` matrix executing `npm run verify` across Node 20/22, Python 3.11+, and .NET 9 SDK on pull requests and main pushes.  
+**Success Criteria:**
+- [ ] `.github/workflows/ci.yml` configured with least-privilege permissions (`contents: read`).
+- [ ] Validates contract linting, static type checking, Node.js reference SUT, and polyglot SUT execution in GitHub Actions runner.
+- [ ] Status checks report green in repository pull requests and main branch runs.
+
+#### POC-P3-02: Remediate npm audit Security Vulnerabilities — Score: 20
+**Priority Score:** Security Impact (8) + Breakage Probability (6) + Maintenance Burden (6) = **20 (HIGH)**  
+**Status:** Open  
+**Objective:** Remediate 21 vulnerabilities (6 high, 15 moderate) reported by `npm audit` across `@redocly/cli`, `fast-uri`, and `@cucumber/messages`.  
+**Success Criteria:**
+- [ ] High-severity `fast-uri` (SSRF/host confusion) and `@faker-js/faker` advisories resolved.
+- [ ] `npm audit` reports 0 vulnerabilities (or only accepted low-risk non-exploitable transitive dev dependencies).
+- [ ] `npm run verify` continues to pass 100% green without contract, linter, or BDD test regressions.
+
+#### POC-P3-03: Legal & Packaging Normalisation — Score: 8
+**Priority Score:** Security Impact (1) + Breakage Probability (2) + Maintenance Burden (5) = **8 (LOW)**  
+**Status:** Open  
+**Objective:** Add root `LICENSE` file (MIT) matching package declarations and reconcile README documentation with actual verification scripts.  
+**Success Criteria:**
+- [ ] Root `LICENSE` file created with standard MIT text (2026 Gary Brooks).
+- [ ] GitHub repository correctly detected as MIT licensed.
+- [ ] README §"Validation Gate" accurately reflects `scripts/verify.mjs` execution model.
+
+#### POC-P3-04: Decouple Provider from Sibling Workspace Path — Score: 16
+**Priority Score:** Security Impact (2) + Breakage Probability (6) + Maintenance Burden (8) = **16 (MEDIUM)**  
+**Status:** Open  
+**Objective:** Decouple `hand-baked-screenplay-pattern` from local relative file path (`file:../hand-baked-screenplay-pattern`) to permit standalone cloning and external CI runner execution.  
+**Success Criteria:**
+- [ ] `package.json` pins immutable `hand-baked-screenplay-pattern` release (v0.3.0) or packaged bundle per ADR-0002 pattern.
+- [ ] Clean clone installs and runs `npm run verify` without requiring sibling repository checkout.
+
+---
+
 ## Risk Summary
 
 | Priority | Count | Status Distribution |
 |---|---|---|
-| HIGH (20–30) | 0 | — |
-| MEDIUM (10–19) | 0 | 5 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01) |
-| LOW (0–9) | 0 | — |
-| **Total Outstanding** | **0** | All roadmap tickets delivered |
+| HIGH (20–30) | 1 | 1 Open (POC-P3-02) |
+| MEDIUM (10–19) | 2 | 2 Open (POC-P3-01, POC-P3-04), 5 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01) |
+| LOW (0–9) | 1 | 1 Open (POC-P3-03) |
+| **Total Outstanding** | **4** | POC-P3-01, POC-P3-02, POC-P3-03, POC-P3-04 |
 | Resolved | 5 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01 |
