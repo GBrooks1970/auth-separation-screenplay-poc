@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Phase 3: GitHub Actions CI Matrix Workflow (`POC-P3-01`)**:
+  - Added `.github/workflows/ci.yml` executing unified verification gate across Node.js 20 and 22 with least-privilege permissions (`contents: read`).
+  - Configured multi-stack dependencies including Python 3.12 (FastAPI), .NET 9 SDK (ASP.NET Core User Profile), and automated checkout/build of `hand-baked-screenplay-pattern` provider.
+
 ## [0.3.0] - 2026-08-18
 
 ### Added

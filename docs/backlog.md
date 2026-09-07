@@ -76,12 +76,12 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 #### POC-P3-01: Add GitHub Actions CI Matrix Workflow — Score: 18
 **Priority Score:** Security Impact (3) + Breakage Probability (7) + Maintenance Burden (8) = **18 (MEDIUM)**  
-**Status:** Open  
+**Status:** Closed (2026-09-07)  
 **Objective:** Establish `.github/workflows/ci.yml` matrix executing `npm run verify` across Node 20/22, Python 3.11+, and .NET 9 SDK on pull requests and main pushes.  
 **Success Criteria:**
-- [ ] `.github/workflows/ci.yml` configured with least-privilege permissions (`contents: read`).
-- [ ] Validates contract linting, static type checking, Node.js reference SUT, and polyglot SUT execution in GitHub Actions runner.
-- [ ] Status checks report green in repository pull requests and main branch runs.
+- [x] `.github/workflows/ci.yml` configured with least-privilege permissions (`contents: read`).
+- [x] Validates contract linting, static type checking, Node.js reference SUT, and polyglot SUT execution in GitHub Actions runner.
+- [x] Status checks report green in repository pull requests and main branch runs.
 
 #### POC-P3-02: Remediate npm audit Security Vulnerabilities — Score: 20
 **Priority Score:** Security Impact (8) + Breakage Probability (6) + Maintenance Burden (6) = **20 (HIGH)**  
@@ -116,7 +116,7 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 | Priority | Count | Status Distribution |
 |---|---|---|
 | HIGH (20–30) | 1 | 1 Open (POC-P3-02) |
-| MEDIUM (10–19) | 2 | 2 Open (POC-P3-01, POC-P3-04), 5 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01) |
+| MEDIUM (10–19) | 1 | 1 Open (POC-P3-04), 6 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01) |
 | LOW (0–9) | 1 | 1 Open (POC-P3-03) |
-| **Total Outstanding** | **4** | POC-P3-01, POC-P3-02, POC-P3-03, POC-P3-04 |
-| Resolved | 5 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01 |
+| **Total Outstanding** | **3** | POC-P3-02, POC-P3-03, POC-P3-04 |
+| Resolved | 6 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01 |
