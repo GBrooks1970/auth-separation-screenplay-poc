@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Reconciled `README.md` §"Validation Gate" to accurately document `scripts/verify.mjs` multi-stage execution model and quality commands.
   - Normalised en-GB spelling across architecture and overview sections.
 
+### Changed
+- **Phase 3: Decouple Provider from Sibling Workspace Path (`POC-P3-04`)**:
+  - Adopted ADR-0002, vendoring `hand-baked-screenplay-pattern-0.3.0.tgz` within `vendor/` and pinning `package.json` to `file:vendor/hand-baked-screenplay-pattern-0.3.0.tgz`.
+  - Decoupled test harness from local sibling folder (`file:../hand-baked-screenplay-pattern`), allowing standalone cloning and execution.
+  - Streamlined `.github/workflows/ci.yml` by removing multi-repository provider checkout and compilation steps.
+
 ## [0.3.0] - 2026-08-18
 
 ### Added
