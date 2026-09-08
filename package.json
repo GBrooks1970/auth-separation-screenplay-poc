@@ -13,6 +13,8 @@
     "test:polyglot": "node scripts/run-polyglot-tests.mjs",
     "test": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "verify": "node scripts/verify.mjs",
+    "docs:api": "node scripts/generate-api-docs.mjs",
+    "check:api-docs": "node scripts/check-api-docs.mjs",
     "build": "tsc --noEmit && dotnet build sut-polyglot/dotnet-userinfo"
   },
   "keywords": [
