@@ -103,11 +103,11 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 #### POC-P3-04: Decouple Provider from Sibling Workspace Path — Score: 16
 **Priority Score:** Security Impact (2) + Breakage Probability (6) + Maintenance Burden (8) = **16 (MEDIUM)**  
-**Status:** Open  
+**Status:** Closed (2026-09-08)  
 **Objective:** Decouple `hand-baked-screenplay-pattern` from local relative file path (`file:../hand-baked-screenplay-pattern`) to permit standalone cloning and external CI runner execution.  
 **Success Criteria:**
-- [ ] `package.json` pins immutable `hand-baked-screenplay-pattern` release (v0.3.0) or packaged bundle per ADR-0002 pattern.
-- [ ] Clean clone installs and runs `npm run verify` without requiring sibling repository checkout.
+- [x] `package.json` pins immutable `hand-baked-screenplay-pattern` release (v0.3.0) or packaged bundle per ADR-0002 pattern.
+- [x] Clean clone installs and runs `npm run verify` without requiring sibling repository checkout.
 
 ---
 
@@ -116,7 +116,7 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 | Priority | Count | Status Distribution |
 |---|---|---|
 | HIGH (20–30) | 0 | 1 Closed (POC-P3-02) |
-| MEDIUM (10–19) | 1 | 1 Open (POC-P3-04), 6 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01) |
+| MEDIUM (10–19) | 0 | 7 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-04) |
 | LOW (0–9) | 0 | 1 Closed (POC-P3-03) |
-| **Total Outstanding** | **1** | POC-P3-04 |
-| Resolved | 8 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02, POC-P3-03 |
+| **Total Outstanding** | **0** | None |
+| Resolved | 9 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02, POC-P3-03, POC-P3-04 |

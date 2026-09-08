@@ -41,13 +41,6 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Build hand-baked-screenplay-pattern provider
-        run: |
-          git clone --depth 1 --branch v0.3.0 https://github.com/NeoCognitus70/hand-baked-screenplay-pattern.git ../hand-baked-screenplay-pattern
-          cd ../hand-baked-screenplay-pattern
-          npm ci
-          npm run build
-
       - name: Install Python dependencies
         run: pip install -r sut-polyglot/python-authz/requirements.txt
 

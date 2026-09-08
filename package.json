@@ -30,7 +30,7 @@
   "author": "Gary Brooks",
   "license": "MIT",
   "dependencies": {
-    "hand-baked-screenplay-pattern": "file:../hand-baked-screenplay-pattern"
+    "hand-baked-screenplay-pattern": "file:vendor/hand-baked-screenplay-pattern-0.3.0.tgz"
   },
   "devDependencies": {
     "@asyncapi/parser": "^3.0.0",
