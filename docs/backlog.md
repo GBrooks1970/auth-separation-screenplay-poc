@@ -94,12 +94,12 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 
 #### POC-P3-03: Legal & Packaging Normalisation — Score: 8
 **Priority Score:** Security Impact (1) + Breakage Probability (2) + Maintenance Burden (5) = **8 (LOW)**  
-**Status:** Open  
+**Status:** Closed (2026-09-08)  
 **Objective:** Add root `LICENSE` file (MIT) matching package declarations and reconcile README documentation with actual verification scripts.  
 **Success Criteria:**
-- [ ] Root `LICENSE` file created with standard MIT text (2026 Gary Brooks).
-- [ ] GitHub repository correctly detected as MIT licensed.
-- [ ] README §"Validation Gate" accurately reflects `scripts/verify.mjs` execution model.
+- [x] Root `LICENSE` file created with standard MIT text (2026 Gary Brooks).
+- [x] GitHub repository correctly detected as MIT licensed.
+- [x] README §"Validation Gate" accurately reflects `scripts/verify.mjs` execution model.
 
 #### POC-P3-04: Decouple Provider from Sibling Workspace Path — Score: 16
 **Priority Score:** Security Impact (2) + Breakage Probability (6) + Maintenance Burden (8) = **16 (MEDIUM)**  
@@ -117,6 +117,6 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 |---|---|---|
 | HIGH (20–30) | 0 | 1 Closed (POC-P3-02) |
 | MEDIUM (10–19) | 1 | 1 Open (POC-P3-04), 6 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01) |
-| LOW (0–9) | 1 | 1 Open (POC-P3-03) |
-| **Total Outstanding** | **2** | POC-P3-03, POC-P3-04 |
-| Resolved | 7 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02 |
+| LOW (0–9) | 0 | 1 Closed (POC-P3-03) |
+| **Total Outstanding** | **1** | POC-P3-04 |
+| Resolved | 8 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02, POC-P3-03 |
