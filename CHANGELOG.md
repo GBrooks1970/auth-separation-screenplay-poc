@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added dependency overrides for `fast-uri` (`^3.1.7`) and `uuid` (`^11.1.1`), resolving SSRF/host confusion and buffer bounds check vulnerabilities.
   - Reduced `npm audit` advisories from 21 (6 high, 15 moderate) to 0 vulnerabilities.
 
+### Documentation
+- **Phase 3: Legal & Packaging Normalisation (`POC-P3-03`)**:
+  - Added root `LICENSE` file (MIT, 2026 Gary Brooks) matching package declarations.
+  - Reconciled `README.md` §"Validation Gate" to accurately document `scripts/verify.mjs` multi-stage execution model and quality commands.
+  - Normalised en-GB spelling across architecture and overview sections.
+
 ## [0.3.0] - 2026-08-18
 
 ### Added
