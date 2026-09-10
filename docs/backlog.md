@@ -1,7 +1,7 @@
 # auth-separation-screenplay-poc — Backlog
 
-**Version:** 5 — **Phase 3 Operational Hardening & Maintenance Established** (2026-09-07). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
-**Last Updated:** 2026-09-07  
+**Version:** 6 — **Phase 3 Operational Hardening & Maintenance Complete** (2026-09-09). Strategy 3 (Specification-First Monorepo with Phased Multi-Stack Parity).  
+**Last Updated:** 2026-09-09  
 **Based on:** Design Specification Draft ([`../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md`](../../project-specs/potential-project-outlines/auth-separation-screenplay-poc.md)) and Initial Code Review (`.review/CODE_REVIEW_Antigravity_v1_20260819T1000Z`)
 
 This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ordering is by phase and priority score.
@@ -109,6 +109,17 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 - [x] `package.json` pins immutable `hand-baked-screenplay-pattern` release (v0.3.0) or packaged bundle per ADR-0002 pattern.
 - [x] Clean clone installs and runs `npm run verify` without requiring sibling repository checkout.
 
+#### POC-P3-05: Publish Multi-Spec Static API Reference to GitHub Pages — Score: 15
+**Priority Score:** Security Impact (2) + Breakage Probability (5) + Maintenance Burden (8) = **15 (MEDIUM)**  
+**Status:** Closed (2026-09-09)  
+**Objective:** Author a deterministic, dependency-free static API reference generator and validator covering all 4 microservice and event contracts (AuthN, AuthZ, User Profile, Domain & Audit Events), deploy via GitHub Pages workflow, and integrate the documentation action into the portfolio landing page.  
+**Success Criteria:**
+- [x] In-repo deterministic HTML/CSS renderer (`scripts/render-api-docs-lib.mjs`) generates self-contained multi-spec documentation site with interactive navigation, operation cards, schemas, and raw YAML download links.
+- [x] Build script (`scripts/generate-api-docs.mjs`) and drift/integrity validator (`scripts/check-api-docs.mjs`) enforce 100% contract coverage, byte-stability, zero external network calls, and zero external asset loads.
+- [x] GitHub Pages publication workflow (`.github/workflows/pages.yml`) deploys `docs-site/` on push to `main` via `actions/upload-pages-artifact@v5` and `actions/deploy-pages@v5`.
+- [x] Published endpoint `https://gbrooks1970.github.io/auth-separation-screenplay-poc/` verified live (HTTP 200 OK, 74,538 bytes; PR #11, merged as `50efcd6`).
+- [x] Linked on `portfolio-landing` showcase card under typed `documentation` action (`btn documentation` with document glyph; PR #45, merged as `598eec5`).
+
 ---
 
 ## Risk Summary
@@ -116,7 +127,8 @@ This backlog tracks the phased delivery of `auth-separation-screenplay-poc`. Ord
 | Priority | Count | Status Distribution |
 |---|---|---|
 | HIGH (20–30) | 0 | 1 Closed (POC-P3-02) |
-| MEDIUM (10–19) | 0 | 7 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-04) |
+| MEDIUM (10–19) | 0 | 8 Closed (POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-04, POC-P3-05) |
 | LOW (0–9) | 0 | 1 Closed (POC-P3-03) |
 | **Total Outstanding** | **0** | None |
-| Resolved | 9 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02, POC-P3-03, POC-P3-04 |
+| Resolved | 10 | POC-P0-01, POC-P0-02, POC-P1-01, POC-P1-02, POC-P2-01, POC-P3-01, POC-P3-02, POC-P3-03, POC-P3-04, POC-P3-05 |
+
